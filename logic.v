@@ -336,8 +336,24 @@ Fixpoint beq_nat (n m : nat) : bool :=
             end
   end.
 
-Theorem not_eq_beq_false : forall n n' : nat,
-  n <> n' -> beq_nat n n' = false.
+Theorem noteq_Sn_Sm_then_noteq_n_m : forall n m : nat,
+  S n <> S m -> n <> m.
+Proof.
+  intros n m H. unfold not in H. unfold not.
+  intro H0. apply H. rewrite -> H0. reflexivity. Qed.
+
+Theorem noteq_n_m_then_noteq_Sn_Sm : forall n m : nat,
+  n <> m -> S n <> S m.
+Proof.
+Admitted.
+
+Theorem noteq_Sn_Sm__noteq_n_m : forall n m : nat,
+  (S n <> S m) <-> (n <> m).
+Proof.
+Admitted.
+
+Theorem not_eq_then_beq_false : forall n1 n2 : nat,
+  n1 <> n2 -> beq_nat n1 n2 = false.
 Proof.
   intros n1.  induction n1 as [| n1'].
   intros n2 H. induction n2 as [| n2'].
@@ -345,10 +361,16 @@ Proof.
   simpl. reflexivity. 
   intros n2 H. induction n2 as [| n2'].
   simpl. reflexivity.
-  simpl. rewrite IHn1'. reflexivity. 
+  simpl. rewrite IHn1'. reflexivity. apply noteq_Sn_Sm_then_noteq_n_m.
+  apply H. Qed.
 
-Theorem beq_false_not_eq : forall n m,
+Theorem beq_false_then__not_eq : forall n m,
   false = beq_nat n m -> n <> m.
+Proof.
+Admitted.
+
+Theorem not_eq__beq_false : forall n n' : nat,
+  (n <> n') <-> (beq_nat n n' = false).
 Proof.
 Admitted.
 
