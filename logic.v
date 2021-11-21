@@ -138,60 +138,112 @@ Proof.
 
 Theorem andb_true__and : forall b c : bool,
   andb b c = true -> b = true /\ c = true.
-Proof. Admitted.
+Proof.
+  intros b c H.
+  destruct b. split. reflexivity.
+  destruct c. reflexivity. discriminate.
+  split. discriminate.
+  destruct c. reflexivity. discriminate. Qed.
 
 Theorem and__andb_true : forall b c : bool,
   b = true /\ c = true -> andb b c = true.
-Proof. Admitted.
+Proof.
+  intros b c H. inversion H as [Hb Hc].
+  rewrite -> Hb. rewrite -> Hc. reflexivity. Qed.
 
 Theorem andb_true_theorem : forall b c : bool,
   (andb b c = true) <-> (b = true /\ c = true).
-Proof. Admitted.
+Proof.
+  intros b c. split.
+  apply andb_true__and. apply and__andb_true. Qed.
 
 Theorem andb_false__or : forall b c : bool,
   andb b c = false -> b = false \/ c = false.
 Proof.
-Admitted.
+  intros b c H.
+  destruct b. apply or_intror. destruct c. simpl in H. apply H.
+  reflexivity.
+  apply or_introl. reflexivity. Qed. 
+
+Theorem andb_comm : forall b c : bool,
+  andb b c = andb c b.
+Proof.
+  intros b c.
+  destruct b.
+  destruct c. reflexivity. reflexivity.
+  destruct c. reflexivity. reflexivity. Qed.
 
 Theorem or__andb_false : forall b c : bool,
   b = false \/ c = false -> andb b c = false.
 Proof.
-Admitted.
+  intros b c H.
+  inversion H as [Hb | Hc].
+  rewrite -> Hb. reflexivity.
+  rewrite -> Hc. rewrite -> andb_comm. reflexivity. Qed. 
 
 Theorem andb_false_theorem : forall b c : bool,
   (andb b c = false) <-> (b = false \/ c = false).
 Proof.
-Admitted.
+  intros b c.
+  split.
+  apply andb_false__or.
+  apply or__andb_false. Qed.
 
 Theorem orb_true__or : forall b c : bool,
   orb b c = true -> b = true \/ c = true.
 Proof.
-Admitted.
+  intros b c H.
+  destruct b. apply or_introl. reflexivity.
+  destruct c. apply or_intror. reflexivity.
+  simpl in H. discriminate. Qed. 
 
+Theorem orb_comm : forall b c :bool,
+  orb b c = orb c b.
+Proof.
+  intros b c.
+  destruct b.
+  destruct c. reflexivity. reflexivity.
+  destruct c. reflexivity. reflexivity. Qed.
+  
 Theorem or__orb_true : forall b c : bool,
   b = true \/ c = true -> orb b c = true.
 Proof.
-Admitted.
+  intros b c H.
+  inversion H as [Hb | Hc].
+  rewrite -> Hb. reflexivity.
+  rewrite -> Hc. rewrite -> orb_comm. reflexivity. Qed.
 
 Theorem orb_true_theorem : forall b c : bool,
   (orb b c = true) <-> (b = true \/ c = true).
 Proof.
-Admitted.
+  intros b c. split.
+  apply orb_true__or.
+  apply or__orb_true. Qed.
 
 Theorem orb_false__and : forall b c : bool,
   orb b c = false -> b = false /\ c = false.
 Proof.
-Admitted.
-
+  intros b c H.
+  destruct b. 
+  destruct c.
+  simpl in H. discriminate.
+  simpl in H. discriminate.
+  destruct c.
+  simpl in H. discriminate.
+  split. reflexivity. reflexivity. Qed.
+  
 Theorem and__orb_false : forall b c : bool,
   b = false /\ c = false -> orb b c = false.
 Proof.
-Admitted.
+  intros b c H.
+  inversion H as [Hb Hc].
+  rewrite -> Hb. rewrite Hc. reflexivity. Qed.
 
 Theorem orb_false_theorem : forall b c : bool,
   (orb b c = false) <-> (b = false /\ c = false).
 Proof.
-Admitted.
-
+  intros b c. split.
+  apply orb_false__and.
+  apply and__orb_false. Qed.
 
 End logic.
