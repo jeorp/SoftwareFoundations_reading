@@ -246,4 +246,58 @@ Proof.
   apply orb_false__and.
   apply and__orb_false. Qed.
 
+Inductive False : Prop := .
+Theorem False_implies_nonsence : 
+  False -> 2 + 2 = 5.
+Proof.
+  intro H. inversion H. Qed.
+Theorem nonsence_implies_False :
+  2 + 2 = 5 -> False.
+ Proof.
+  intro H. inversion H. Qed.
+Theorem eq_False_nonsence : 
+  2 + 2 = 5 <-> False.
+ Proof.
+  split.
+  apply nonsence_implies_False.
+  apply False_implies_nonsence. Qed.
+Theorem ex_falso_quadlibet : forall P : Prop,
+  False -> P.
+Proof.
+  intros P H. inversion H. Qed.
+
+Inductive True : Prop := tl : False -> True.
+Definition not (P : Prop) : Prop :=  P -> False.
+Notation "~ x" := (not x) : type_scope.
+Check not.
+
+Theorem not_False :  ~ False.
+Proof.
+  intro F. inversion F. Qed.
+
+Theorem contradiction_implies_anything : forall P Q : Prop,
+  (P /\ ~P) -> Q.
+Proof.
+  intros P Q H.
+  inversion H as [HP HnotP].
+  apply HnotP in HP. inversion HP. Qed.
+
+Theorem double_neg : forall P : Prop,
+  P -> ~~P.
+Proof. 
+  intros P H0. intro H. apply H. apply H0. Qed. 
+
+Theorem contrapositive : forall P Q : Prop,
+  (P -> Q) -> (~Q -> ~P).
+Proof.
+  intros P Q H. intro HQ. intro HP.
+  apply HQ. apply H. apply HP. Qed.
+  
+Theorem not_both_true_and_false : forall P : Prop,
+  ~ (P /\ ~P).
+Proof.
+  intro P. intro H.
+  inversion H as [HP HnotP].
+  apply HnotP. apply HP. Qed.
+
 End logic.
