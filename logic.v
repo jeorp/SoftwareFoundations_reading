@@ -342,15 +342,26 @@ Proof.
   intros n m H. unfold not in H. unfold not.
   intro H0. apply H. rewrite -> H0. reflexivity. Qed.
 
+Theorem eq_S : forall n m : nat,
+  S n = S m -> n = m.
+ Proof.
+  intro n. induction n as [| n'].
+  intros m H. inversion H. reflexivity.
+  intros m H. inversion H. reflexivity. Qed. 
+
 Theorem noteq_n_m_then_noteq_Sn_Sm : forall n m : nat,
   n <> m -> S n <> S m.
 Proof.
-Admitted.
+  intros n m H.
+  unfold not in H. unfold not. intro H0.
+  apply H. apply eq_S. apply H0. Qed. 
 
 Theorem noteq_Sn_Sm__noteq_n_m : forall n m : nat,
   (S n <> S m) <-> (n <> m).
 Proof.
-Admitted.
+  intros n m. split.
+  apply noteq_Sn_Sm_then_noteq_n_m.
+  apply noteq_n_m_then_noteq_Sn_Sm. Qed.
 
 Theorem not_eq_then_beq_false : forall n1 n2 : nat,
   n1 <> n2 -> beq_nat n1 n2 = false.
@@ -364,14 +375,32 @@ Proof.
   simpl. rewrite IHn1'. reflexivity. apply noteq_Sn_Sm_then_noteq_n_m.
   apply H. Qed.
 
-Theorem beq_false_then__not_eq : forall n m,
-  false = beq_nat n m -> n <> m.
+Theorem zero_is_not_Sn : forall n : nat, 0 <> S n.
 Proof.
-Admitted.
+  intro n. unfold not. intro H0. inversion H0. Qed.
+
+Theorem noteq_sym : forall X : Type, forall p q : X,
+  p <> q -> q <> p.
+Proof.
+  intros X P Q H. unfold not in H. unfold not. intro H0.
+  apply H. rewrite -> H0. reflexivity. Qed.
+
+Theorem beq_false_then__not_eq : forall n m,
+  beq_nat n m = false -> n <> m.
+Proof.
+  intros n. induction n as [| n'].
+  intros m H. induction m as [| m'].
+  simpl in H. discriminate. apply zero_is_not_Sn.
+  intros m H. induction m as [| m']. apply noteq_sym. apply zero_is_not_Sn.
+  simpl in H. apply noteq_n_m_then_noteq_Sn_Sm. apply IHn'. apply H.
+  Qed.
 
 Theorem not_eq__beq_false : forall n n' : nat,
   (n <> n') <-> (beq_nat n n' = false).
 Proof.
-Admitted.
+  intros n n'. split.
+  apply not_eq_then_beq_false.
+  apply beq_false_then__not_eq. Qed. 
+  
 
 End logic.
