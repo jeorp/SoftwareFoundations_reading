@@ -248,20 +248,20 @@ Proof.
 
 Inductive False : Prop := .
 Theorem False_implies_nonsence : 
-  False -> 2 + 2 = 5.
+  False -> true = false.
 Proof.
   intro H. inversion H. Qed.
 Theorem nonsence_implies_False :
-  2 + 2 = 5 -> False.
+  true = false -> False.
  Proof.
   intro H. inversion H. Qed.
 Theorem eq_False_nonsence : 
-  2 + 2 = 5 <-> False.
+  true = false <-> False.
  Proof.
   split.
   apply nonsence_implies_False.
   apply False_implies_nonsence. Qed.
-Theorem ex_falso_quadlibet : forall P : Prop,
+Theorem ex_falso_quodlibet : forall P : Prop,
   False -> P.
 Proof.
   intros P H. inversion H. Qed.
@@ -299,5 +299,57 @@ Proof.
   intro P. intro H.
   inversion H as [HP HnotP].
   apply HnotP. apply HP. Qed.
+
+Notation "x <> y" := (~ (x = y)) : type_scope.
+
+Theorem not_false_then_true : forall b,
+  b <> false -> b = true.
+Proof.
+  intros b H. destruct b.
+  reflexivity.
+  unfold not in H. apply ex_falso_quodlibet.
+  apply H. reflexivity. Qed.
+
+Theorem true_then_not_false : forall b : bool,
+  b = true -> b <> false.
+Proof.
+  intros b H. unfold not.
+  destruct b. intro H0. 
+  discriminate. discriminate. Qed. 
+ 
+Theorem true_is_not_false : forall b : bool,
+  (b <> false) <-> (b = true).
+Proof.
+  intros b. split.
+  apply not_false_then_true.
+  apply true_then_not_false. Qed.
+
+Fixpoint beq_nat (n m : nat) : bool :=
+  match n with
+  | O => match m with
+         | O => true
+         | S m' => false
+         end
+  | S n' => match m with
+            | O => false
+            | S m' => beq_nat n' m'
+            end
+  end.
+
+Theorem not_eq_beq_false : forall n n' : nat,
+  n <> n' -> beq_nat n n' = false.
+Proof.
+  intros n1.  induction n1 as [| n1'].
+  intros n2 H. induction n2 as [| n2'].
+  simpl. unfold not in H. apply False_implies_nonsence. apply H. reflexivity.
+  simpl. reflexivity. 
+  intros n2 H. induction n2 as [| n2'].
+  simpl. reflexivity.
+  simpl. rewrite IHn1'. reflexivity. 
+
+Theorem beq_false_not_eq : forall n m,
+  false = beq_nat n m -> n <> m.
+Proof.
+Admitted.
 
 End logic.
