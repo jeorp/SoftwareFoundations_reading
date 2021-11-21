@@ -1,4 +1,4 @@
-Module NatList.
+Module natlist.
 Require Import Arith.
 Check nat.
 Check bool.
@@ -114,4 +114,4 @@ Proof.
   rewrite -> app_ass.
   rewrite -> app_ass. reflexivity. Qed.
 
-End NatList.
+End natlist.
