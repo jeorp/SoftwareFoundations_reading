@@ -401,6 +401,103 @@ Proof.
   intros n n'. split.
   apply not_eq_then_beq_false.
   apply beq_false_then__not_eq. Qed. 
-  
+
+Inductive ev : nat -> Prop :=
+  | ev_0 : ev 0
+  | ev_SS : forall n : nat, ev n -> ev (S (S n)).
+
+Theorem four_ev' : ev 4.
+Proof.
+  apply ev_SS. apply ev_SS. apply ev_0. Qed.
+
+Theorem ev_plus4' : forall n : nat,
+  ev n -> ev (4 + n).
+Proof.
+  intros n H. simpl. apply ev_SS. apply ev_SS. assumption.
+  Qed.
+
+Fixpoint double (n:nat) :=
+  match n with
+  | O => O
+  | S n' => S (S (double n'))
+  end.
+
+Theorem double_even : forall n : nat,
+  ev (double n).
+Proof.
+  intro n. induction n as [| n'].
+  simpl. apply ev_0.
+  simpl. apply ev_SS. apply IHn'. Qed.
+
+Theorem SSev_even : forall n : nat,
+  ev (S (S n)) -> ev n.
+Proof.
+  intros n E. inversion E as [| n' E']. apply E'. Qed.
+
+Theorem ev_1_plus_m : forall m : nat,
+  ev 1 -> ev m -> ev (1+m).
+Proof.
+  intros m H1 H2. inversion H1. Qed. 
+
+Inductive ex (X : Type) (P : X -> Prop) : Prop :=
+  ex_intro : forall (witness:X), P witness -> ex X P.
+
+Notation "'exists' x , p" := (ex _ (fun x => p))
+  (at level 200, x ident, right associativity) : type_scope.
+Notation "'exists' x : X , p" := (ex _ (fun x:X => p))
+  (at level 200, x ident, right associativity) : type_scope.
+
+
+Example exists_example_1 : exists n, n + (n * n) = 6.
+Proof.
+  apply ex_intro with (witness:=2).
+  reflexivity. Qed.
+
+Example exists_example_1' : exists n,
+     n + (n * n) = 6.
+Proof.
+  exists 2.
+  reflexivity. Qed.
+
+Theorem exists_example_2 : forall n,
+     (exists m, n = 4 + m) ->
+     (exists o, n = 2 + o).
+Proof.
+  intros n H.
+  inversion H as [m Hm].
+  exists (2 + m).
+  apply Hm. Qed.
+
+Theorem dist_not_exists : forall (X : Type) (P : X -> Prop),
+  (forall x, P x) -> ~ (exists x, ~ P x).
+Proof.
+Admitted.
+
+
+Definition peirce := forall P Q: Prop,
+  ((P -> Q) -> P) -> P.
+Definition classic := forall P : Prop,
+  ~~P -> P.
+Definition excluded_middle := forall P : Prop,
+  P \/ ~P.
+Definition de_morgan_not_and_not := forall P Q : Prop,
+  ~(~P/\~Q) -> P \/ Q.
+Definition implies_to_or := forall P Q : Prop,
+  (P -> Q) -> (~P \/ Q).
+
+Theorem not_exists_dist :
+  excluded_middle ->
+  forall (X :Type) (P : X -> Prop),
+    ~ (exists x, ~ P x) -> (forall x, P x).
+Proof.
+Admitted.
+
+Theorem dist_exists_or : forall (X :Type) (P Q : X -> Prop),
+  (exists x, P x \/ Q x) <-> (exists x, P x) \/ (exists x, Q x).
+Proof.
+Admitted.
+
+
+
 
 End logic.
