@@ -285,7 +285,12 @@ Proof.
 Theorem double_neg : forall P : Prop,
   P -> ~~P.
 Proof. 
-  intros P H0. intro H. apply H. apply H0. Qed. 
+  intros P H0. intro H. apply H. apply H0. Qed.
+
+ Theorem from_double_neg : forall P : Prop,
+  ~~P -> P.
+  intros P.  unfold not. intro H.
+  Admitted.
 
 Theorem contrapositive : forall P Q : Prop,
   (P -> Q) -> (~Q -> ~P).
@@ -471,7 +476,8 @@ Proof.
 Theorem dist_not_exists : forall (X : Type) (P : X -> Prop),
   (forall x, P x) -> ~ (exists x, ~ P x).
 Proof.
-Admitted.
+  intros X P H. unfold not. intro H1. inversion H1.
+  apply H0. apply H. Qed.
 
 
 Definition peirce := forall P Q: Prop,
@@ -485,17 +491,95 @@ Definition de_morgan_not_and_not := forall P Q : Prop,
 Definition implies_to_or := forall P Q : Prop,
   (P -> Q) -> (~P \/ Q).
 
+Theorem exmiddle_classic : 
+  excluded_middle -> classic.
+Proof.
+  unfold excluded_middle. unfold classic.
+  intro H. intro P. unfold not. intro H1.
+  assert (H2 : (P \/ ~P) -> ((P -> False) -> False) -> P).
+  intros Hpnp Hpf. destruct Hpnp as [Hp | Hnp].
+  apply Hp. unfold not in Hnp. apply Hpf in Hnp. inversion Hnp.
+  apply H2. apply H. apply H1. Qed.
+
+Theorem implies_to_or_ex_middle :
+  implies_to_or -> excluded_middle.
+Proof.
+  intro H. unfold excluded_middle. unfold implies_to_or in H.
+  intro P. apply or_comm. apply H. intro HP. apply HP. Qed.
+
+Theorem peirce_to_classic :
+  classic -> peirce.
+Proof.
+  intro H.  unfold peirce. unfold classic in H. unfold not in H.
+  intros P Q. intro  H0.  Admitted.
+
+Theorem morgan_classic : 
+   de_morgan_not_and_not -> classic.
+Proof.
+  intro H. unfold classic. unfold  de_morgan_not_and_not in H.
+  intro P. intro H0. 
+  assert (Hl : ~~P -> ~(~ P /\ ~ P)). intro H'. 
+  unfold not. unfold not in H'. intro H''. destruct H'' as [Hp Hq].
+  apply H' in Hp. apply Hp.
+  apply Hl in H0. apply H in H0. destruct H0 as [Hp | Hq].
+  apply Hp. apply Hq. Qed.  
+
+Theorem morgan_implies : 
+   de_morgan_not_and_not -> implies_to_or.
+Proof.
+  intro H. unfold implies_to_or. unfold de_morgan_not_and_not in H.
+  intros P Q. intro H0. apply H. Admitted.
+
+Theorem morgan_exmiddle : 
+   de_morgan_not_and_not -> excluded_middle.
+Proof. Admitted.
+
+Theorem x_to_exist : forall X : Type, forall P : X -> Prop, forall x : X,
+  P x -> exists x, P x.
+Proof.
+  intros X P x. intro H. exists x. apply H. Qed.
+
+
 Theorem not_exists_dist :
   excluded_middle ->
   forall (X :Type) (P : X -> Prop),
     ~ (exists x, ~ P x) -> (forall x, P x).
 Proof.
-Admitted.
+  intros H0. intros X P. intro H1. 
+  intro x. unfold not in H1. assert (H : ((P x -> False) -> False) -> P x).
+  intro H. assert (Hl : ((P x -> False) -> False)  = ~ (~ P x) ). unfold not. reflexivity.
+  rewrite Hl in H. apply exmiddle_classic in H0. unfold classic in H0.
+  apply H0. apply H. apply H. intro H2. Admitted.
+  
+  
 
 Theorem dist_exists_or : forall (X :Type) (P Q : X -> Prop),
   (exists x, P x \/ Q x) <-> (exists x, P x) \/ (exists x, Q x).
 Proof.
 Admitted.
+
+
+Inductive le (n:nat) : nat -> Prop :=
+  | le_n : le n n
+  | le_S : forall m, (le n m) -> (le n (S m)).
+
+Notation "m <= n" := (le m n).
+
+Theorem test_le1 :
+  3 <= 3.
+Proof.
+  apply le_n. Qed.
+
+Theorem test_le2 :
+  3 <= 6.
+Proof.
+  apply le_S. apply le_S. apply le_S. apply le_n. Qed.
+
+Theorem test_le3 :
+  ~ (2 <= 1).
+Proof.
+  intros H. inversion H. inversion H1. Qed.
+
 
 
 
